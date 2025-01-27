@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programación de Evaluaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #2c5282;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3182ce;
+        }
+
+        .btn-success:hover {
+            background-color: #38a169;
+        }
+
+        .settings-panel {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .settings-panel h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+
+        .settings-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .evaluation-list {
+            margin-top: 20px;
+        }
+
+        .evaluation-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #4299e1;
+        }
+
+        .evaluation-details {
+            flex-grow: 1;
+            padding-right: 15px;
+        }
+
+        .evaluation-item:hover {
+            background-color: #edf2f7;
+        }
+
+        .delete-btn {
+            background-color: #fc8181;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #f56565;
+        }
+
+        .calendar-container {
+            margin-top: 30px;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            padding: 8px;
+            background-color: #edf2f7;
+            border-radius: 4px;
+        }
+
+        .calendar-day {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day.has-event {
+            background-color: #9ae6b4;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-day.has-event:hover {
+            background-color: #68d391;
+        }
+
+        .event-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .calendar-day.has-event:hover .event-tooltip {
+            display: block;
+        }
+
+        .error-message {
+            background-color: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background-color: #c6f6d5;
+            color: #2f855a;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #38a169;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 5px;
+            text-align: justify;
+            line-height: 1.4;
+        }
+
+        .total-percentage {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #2f855a;
+            font-size: 18px;
+            padding: 10px;
+            background-color: #f0fff4;
+            border-radius: 4px;
+        }
+
+        .pdf-options {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #edf2f7;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Programación de Evaluaciones</h1>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="evaluationForm">
+            <div class="form-group">
+                <label for="subject">Materia o Asignatura:</label>
+                <input type="text" id="subject" name="subject" required>
+            </div>
+
+            <div class="form-group">
+                <label for="activityName">Nombre de la Evaluación:</label>
+                <input type="text" id="activityName" name="activityName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="activityDate">Fecha de la Evaluación:</label>
+                <input type="date" id="activityDate" name="activityDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="activityPercentage">Porcentaje de la Evaluación:</label>
+                <input type="number" id="activityPercentage" name="activityPercentage" 
+                       min="1" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="activityDescription">Descripción (opcional):</label>
+                <textarea id="activityDescription" name="activityDescription" 
+                          rows="3" placeholder="Ingrese una descripción detallada de la evaluación"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Agregar Evaluación</button>
+                <button type="button" id="generatePdfBtn" class="btn-success">Generar PDF</button>
+            </div>
+        </form>
+
+        <div class="settings-panel">
+            <h3>Configuración del PDF</h3>
+            <div class="settings-group">
+                <label for="pdfOrientation">Orientación:</label>
+                <select id="pdfOrientation">
+                    <option value="landscape">Horizontal</option>
+                    <option value="portrait">Vertical</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label for="calendarColumns">Columnas de calendario:</label>
+                <select id="calendarColumns">
+                    <option value="2">2 columnas</option>
+                    <option value="1">1 columna</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="evaluationsList" class="evaluation-list">
+            <h2>Evaluaciones Programadas</h2>
+            <div id="evaluationsContainer"></div>
+            <div class="total-percentage">
+                Porcentaje Total: <span id="totalPercentage">0</span>%
+            </div>
+        </div>
+
+        <div class="calendar-container">
+            <h2>Calendario de Evaluaciones</h2>
+            <div class="month-selector">
+                <select id="monthSelector"></select>
+                <select id="yearSelector"></select>
+            </div>
+            <div id="calendar" class="calendar"></div>
+        </div>
+    </div>
+
+    <!-- Incluir jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // Configuración inicial
+        const { jsPDF } = window.jspdf;
+        let evaluations = [];
+        let totalPercentage = 0;
+
+        // Nombres de los meses
+        const monthNames = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+
+        // Función para mostrar mensajes
+        function showMessage(message, type) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            if (type === 'error') {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            } else {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                setTimeout(() => successDiv.style.display = 'none', 3000);
+            }
+        }
+
+        // Función para inicializar selectores
+        function initializeMonthYearSelectors() {
+            const monthSelector = document.getElementById('monthSelector');
+            const yearSelector = document.getElementById('yearSelector');
+            
+            monthSelector.innerHTML = '';
+            yearSelector.innerHTML = '';
+            
+            // Llenar selector de meses
+            monthNames.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                monthSelector.appendChild(option);
+            });
+
+            // Llenar selector de años (desde el actual hasta 5 años después)
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year <= currentYear + 5; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelector.appendChild(option);
+            }
+
+            // Establecer valores actuales
+            const currentDate = new Date();
+            monthSelector.value = currentDate.getMonth();
+            yearSelector.value = currentDate.getFullYear();
+
+            // Event listeners
+            monthSelector.addEventListener('change', updateCalendar);
+            yearSelector.addEventListener('change', updateCalendar);
+        }
+
+        // Función para formatear fechas
+        function formatDate(date) {
+            const d = new Date(date);
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = monthNames[d.getMonth()];
+            const year = d.getFullYear();
+            return `${day} de ${month} de ${year}`;
+        }
+
+        // Función para validar evaluación
+        function validateEvaluation(evaluation) {
+            if (totalPercentage + evaluation.percentage > 100) {
+                showMessage('La suma de los porcentajes no puede exceder el 100%', 'error');
+                return false;
+            }
+            
+            if (evaluation.percentage <= 0 || evaluation.percentage > 100) {
+                showMessage('El porcentaje debe estar entre 1 y 100', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        // Función para agregar evaluación
+        function addEvaluation(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const newEvaluation = {
+                subject: formData.get('subject'),
+                name: formData.get('activityName'),
+                date: formData.get('activityDate'),
+                percentage: parseInt(formData.get('activityPercentage')),
+                description: formData.get('activityDescription')
+            };
+
+            if (!validateEvaluation(newEvaluation)) {
+                return;
+            }
+
+            evaluations.push(newEvaluation);
+            totalPercentage += newEvaluation.percentage;
+            
+            updateEvaluationsList();
+            updateCalendar();
+            updateTotalPercentage();
+            
+            event.target.reset();
+            showMessage('Evaluación agregada exitosamente', 'success');
+        }
+
+        // Función para actualizar lista de evaluaciones
+        function updateEvaluationsList() {
+            const container = document.getElementById('evaluationsContainer');
+            container.innerHTML = '';
+
+            evaluations.sort((a, b) => new Date(a.date) - new Date(b.date))
+                .forEach((eval, index) => {
+                    const evalDiv = document.createElement('div');
+                    evalDiv.className = 'evaluation-item';
+                    
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'evaluation-details';
+                    
+                    detailsDiv.innerHTML = `
+                        <strong>${eval.name}</strong>
+                        <div>${formatDate(eval.date)} - ${eval.percentage}%</div>
+                        ${eval.description ? `<div class="description">${eval.description}</div>` : ''}
+                    `;
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.textContent = 'Eliminar';
+                    deleteButton.onclick = () => deleteEvaluation(index);
+                    
+                    evalDiv.appendChild(detailsDiv);
+                    evalDiv.appendChild(deleteButton);
+                    container.appendChild(evalDiv);
+                });
+        }
+
+        // Función para eliminar evaluación
+        function deleteEvaluation(index) {
+            totalPercentage -= evaluations[index].percentage;
+            evaluations.splice(index, 1);
+            
+            updateEvaluationsList();
+            updateCalendar();
+            updateTotalPercentage();
+            showMessage('Evaluación eliminada', 'success');
+        }
+
+        // Función para actualizar el porcentaje total
+        function updateTotalPercentage() {
+            document.getElementById('totalPercentage').textContent = totalPercentage;
+        }
+
+        // Función para actualizar el calendario
+        function updateCalendar() {
+            const calendarDiv = document.getElementById('calendar');
+            const month = parseInt(document.getElementById('monthSelector').value);
+            const year = parseInt(document.getElementById('yearSelector').value);
+            
+            calendarDiv.innerHTML = '';
+
+            // Agregar encabezados
+            ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-header';
+                dayHeader.textContent = day;
+                calendarDiv.appendChild(dayHeader);
+            });
+
+            // Calcular días
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Días vacíos iniciales
+            for (let i = 0; i < firstDay; i++) {
+                calendarDiv.appendChild(createEmptyDay());
+            }
+
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                calendarDiv.appendChild(createCalendarDay(year, month, day));
+            }
+        }
+
+        // Función auxiliar para crear día vacío
+        function createEmptyDay() {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day';
+            return emptyDay;
+        }
+
+        // Función auxiliar para crear día del calendario
+        function createCalendarDay(year, month, day) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day';
+            dayDiv.textContent = day;
+
+            const currentDate = new Date(year, month, day).toISOString().split('T')[0];
+            const evalsOnDay = evaluations.filter(eval => eval.date === currentDate);
+
+            if (evalsOnDay.length > 0) {
+                dayDiv.classList.add('has-event');
+                const tooltip = document.createElement('div');
+                tooltip.className = 'event-tooltip';
+                tooltip.innerHTML = evalsOnDay.map(eval => 
+                    `<div><strong>${eval.name}</strong> - ${eval.percentage}%</div>
+                     ${eval.description ? `<div class="description">${eval.description}</div>` : ''}`
+                ).join('<hr>');
+                dayDiv.appendChild(tooltip);
+            }
+
+            return dayDiv;
+        }
+        // Función para generar el PDF mejorado
+        function generatePDF() {
+            const subject = document.querySelector('#subject').value;
+            if (!subject) {
+                showMessage('Por favor, ingrese el nombre de la asignatura', 'error');
+                return;
+            }
+
+            const orientation = document.getElementById('pdfOrientation').value;
+            const columns = parseInt(document.getElementById('calendarColumns').value);
+            
+            const doc = new jsPDF({
+                orientation: orientation,
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Configuración de márgenes y dimensiones
+            const pageWidth = orientation === 'landscape' ? 297 : 210;
+            const pageHeight = orientation === 'landscape' ? 210 : 297;
+            const margin = 20;
+            const usableWidth = pageWidth - (margin * 2);
+
+            // Título y encabezado
+            doc.setFontSize(20);
+            doc.setTextColor(0, 128, 0);
+            doc.text('Programación de Evaluaciones', margin, margin);
+            
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Asignatura: ${subject}`, margin, margin + 10);
+
+            // Lista de evaluaciones
+            doc.setFontSize(14);
+            doc.text('Resumen de Evaluaciones', margin, margin + 25);
+            
+            let y = margin + 35;
+            
+            // Agregar evaluaciones ordenadas por fecha
+            evaluations.sort((a, b) => new Date(a.date) - new Date(b.date))
+    .forEach((eval, index) => {
+        if (y > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+        }
+
+        const date = formatDate(eval.date);
+        doc.setFontSize(12);
+        
+        // Ajustamos las posiciones para mejor espaciado
+        doc.text(`${index + 1}. ${eval.name}`, margin + 5, y);
+        // Movemos la fecha más a la derecha
+        doc.text(date, margin + 80, y);
+        // Separamos más el porcentaje
+        doc.text(`${eval.percentage}%`, margin + 160, y);
+        
+        if (eval.description) {
+            y += 5;
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            
+            // Justificar el texto de la descripción
+            const maxWidth = usableWidth - 15;
+            const lines = doc.splitTextToSize(eval.description, maxWidth);
+            
+            lines.forEach(line => {
+                doc.text(line, margin + 10, y, {
+                    align: 'justify',
+                    maxWidth: maxWidth
+                });
+                y += 5;
+            });
+            
+            doc.setTextColor(0, 0, 0);
+        } else {
+            y += 10;
+        }
+    });
+
+            // Total
+            doc.setFontSize(12);
+            doc.setTextColor(0, 128, 0);
+            doc.text(`Porcentaje Total: ${totalPercentage}%`, margin + 5, y + 5);
+            doc.setTextColor(0, 0, 0);
+
+            // Nueva página para calendarios
+            doc.addPage();
+            y = margin;
+
+            // Configuración del calendario
+            const months = Array.from(new Set(evaluations.map(eval => {
+                const date = new Date(eval.date);
+                return `${date.getFullYear()}-${date.getMonth()}`;
+            }))).sort();
+
+            const calendarWidth = (usableWidth / columns) - (columns > 1 ? 10 : 0);
+            const cellSize = calendarWidth / 7;
+            let currentColumn = 0;
+
+            doc.setFontSize(14);
+            doc.text('Calendario de Evaluaciones', margin, y);
+            y += 10;
+
+            months.forEach((monthKey, index) => {
+                const [year, month] = monthKey.split('-').map(Number);
+                const startX = margin + (currentColumn * (calendarWidth + 10));
+
+                if (y > pageHeight - 60) {
+                    doc.addPage();
+                    y = margin;
+                    currentColumn = 0;
+                }
+
+                // Título del mes
+                doc.setFontSize(12);
+                doc.text(`${monthNames[month]} ${year}`, startX, y);
+
+                // Días de la semana
+                const weekDays = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+                weekDays.forEach((day, i) => {
+                    doc.setFillColor(237, 242, 247);
+                    doc.rect(startX + (i * cellSize), y + 5, cellSize, cellSize, 'F');
+                    doc.text(day, startX + (i * cellSize) + (cellSize/2) - 1, y + 5 + (cellSize/2));
+                });
+
+                // Días del mes
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                let currentDay = 1;
+                let weekRow = 0;
+
+                while (currentDay <= daysInMonth) {
+                    for (let i = 0; i < 7; i++) {
+                        if ((weekRow === 0 && i < firstDay) || currentDay > daysInMonth) {
+                            doc.rect(startX + (i * cellSize), y + 5 + ((weekRow + 1) * cellSize), 
+                                   cellSize, cellSize);
+                        } else {
+                            const currentDate = new Date(year, month, currentDay)
+                                .toISOString().split('T')[0];
+                            const hasEvaluation = evaluations.find(eval => eval.date === currentDate);
+
+                            if (hasEvaluation) {
+                                doc.setFillColor(144, 238, 144);
+                                doc.rect(startX + (i * cellSize), y + 5 + ((weekRow + 1) * cellSize), 
+                                       cellSize, cellSize, 'F');
+                            }
+
+                            doc.rect(startX + (i * cellSize), y + 5 + ((weekRow + 1) * cellSize), 
+                                   cellSize, cellSize);
+                            doc.text(currentDay.toString(), 
+                                   startX + (i * cellSize) + (cellSize/2) - 1, 
+                                   y + 5 + ((weekRow + 1) * cellSize) + (cellSize/2));
+                            currentDay++;
+                        }
+                    }
+                    weekRow++;
+                }
+
+                if (currentColumn === columns - 1) {
+                    y += (weekRow + 2) * cellSize + 15;
+                    currentColumn = 0;
+                } else {
+                    currentColumn++;
+                }
+            });
+
+            // Leyenda
+            y += 10;
+            doc.setFillColor(144, 238, 144);
+            doc.rect(margin, y, 5, 5, 'F');
+            doc.setFontSize(10);
+            doc.text('Días con evaluaciones programadas', margin + 10, y + 4);
+
+            // Guardar PDF
+            doc.save(`programacion_evaluaciones_${subject.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // Inicialización de la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeMonthYearSelectors();
+            updateCalendar();
+            
+            // Event listeners
+            document.getElementById('evaluationForm').addEventListener('submit', addEvaluation);
+            document.getElementById('generatePdfBtn').addEventListener('click', generatePDF);
+        });
+    </script>
+</body>
+</html>
